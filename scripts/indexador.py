@@ -1,5 +1,8 @@
 import json
 from argparse import ArgumentParser
+from collections import defaultdict
+
+from nltk.tokenize import word_tokenize
 
 
 def create_repo(corpus):
@@ -12,7 +15,7 @@ def create_repo(corpus):
     Returns:
         Um dicionário que mapeia docid para uma lista de tokens.
     '''
-    return {}
+    return {docid: word_tokenize(text) for docid, text in corpus.items()}
 
 
 def create_index(repo):
@@ -25,7 +28,13 @@ def create_index(repo):
         O índice reverso do repositorio: um dicionario que mapeia token para
         lista de docids.
     '''
-    return {}
+
+    indexed = defaultdict(set)
+    for doc_id, words in repo.items():
+        for word in words:
+            indexed[word].add(doc_id)
+
+    return {word: list(doc_ids) for word, doc_ids in indexed.items()}
 
 
 def main():
@@ -43,10 +52,10 @@ def main():
     index = create_index(repo)
 
     with open(args.repo_name + '_repo.json', 'w') as file_repo:
-        json.dump(repo, file_repo)
+        json.dump(repo, file_repo, indent=4)
 
     with open(args.repo_name + '_index.json', 'w') as file_index:
-        json.dump(repo, file_index)
+        json.dump(index, file_index, indent=4)
 
 
 if __name__ == '__main__':
