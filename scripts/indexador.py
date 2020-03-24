@@ -36,14 +36,15 @@ def create_index(repo):
         O índice reverso do repositorio: um dicionario que mapeia token para
         lista de docids.
     '''
-    indexed = defaultdict(list)
+    indexed = defaultdict(set)
 
     for k,v in repo.items():
         for word in v:
-            indexed[word].append(k)
-        
-    return indexed
+            indexed[word].add(k)
 
+    for key in indexed:
+        indexed[key] = list(indexed[key])
+    return indexed
 
 def main():
     parser = ArgumentParser()
@@ -60,11 +61,10 @@ def main():
     index = create_index(repo)
 
     with open(args.repo_name + '_repo.json', 'w') as file_repo:
-        json.dump(repo, file_repo)
+        json.dump(repo, file_repo, indent=4)
 
     with open(args.repo_name + '_index.json', 'w') as file_index:
-        json.dump(repo, file_index)
-
+        json.dump(index, file_index, indent=4)
 
 if __name__ == '__main__':
     main()
