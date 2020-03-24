@@ -1,6 +1,9 @@
 import json
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from argparse import ArgumentParser
-
+from collections import defaultdict
 
 def create_repo(corpus):
     '''Cria o repositorio.
@@ -12,7 +15,15 @@ def create_repo(corpus):
     Returns:
         Um dicionário que mapeia docid para uma lista de tokens.
     '''
-    return {}
+    repo = {}
+    ps = PorterStemmer()
+    stop_words = set(stopwords.words('english'))
+    for docid, string in corpus.items():
+        tokens = nltk.word_tokenize(string)
+        stemmed = [ps.stem(x) for x in tokens if not x in stop_words] 
+        clean = [w for w in stemmed if w.isalpha()]
+        repo[docid] = clean
+    return repo
 
 
 def create_index(repo):
@@ -25,7 +36,13 @@ def create_index(repo):
         O índice reverso do repositorio: um dicionario que mapeia token para
         lista de docids.
     '''
-    return {}
+    indexed = defaultdict(list)
+
+    for k,v in repo.items():
+        for word in v:
+            indexed[word].append(k)
+        
+    return indexed
 
 
 def main():
