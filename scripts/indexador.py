@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import json
 import nltk
 from nltk.corpus import stopwords
@@ -42,11 +41,6 @@ def create_index(repo):
     for k,v in repo.items():
         for word in v:
             indexed[word].add(k)
-=======
-from argparse import ArgumentParser
-
-import search_engine.repository as se
->>>>>>> upstream/master
 
     for key in indexed:
         indexed[key] = list(indexed[key])
@@ -60,7 +54,6 @@ def main():
                         help='Raiz do nome do arquivo de repositorio')
     args = parser.parse_args()
 
-<<<<<<< HEAD
     with open(args.corpus, 'r') as file_corpus:
         corpus = json.load(file_corpus)
 
@@ -72,15 +65,6 @@ def main():
 
     with open(args.repo_name + '_index.json', 'w') as file_index:
         json.dump(index, file_index, indent=4)
-=======
-    corpus = se.load_corpus(args.corpus)
-    repo = se.create_repo(corpus)
-    index = se.create_index(repo)
-
-    se.save_repo(args.repo_name + '_repo.json', repo)
-    se.save_index(args.repo_name + '_index.json', index)
-
->>>>>>> upstream/master
 
 if __name__ == '__main__':
     main()
