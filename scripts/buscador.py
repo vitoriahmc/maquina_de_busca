@@ -1,6 +1,7 @@
 import json
 from argparse import ArgumentParser
 from nltk.stem import PorterStemmer
+from nltk.tokenize import SExprTokenizer
 
 def busca(index, data, query):
     # Parsing da query.
@@ -9,17 +10,33 @@ def busca(index, data, query):
 
     # Retornar os textos destes documentos.
 
-    words = query.split(' ')
     ps = PorterStemmer()
-    sets = set(index[ps.stem(words[0])])
-    for i in range(1, len(words)):
-        word_stemmed = ps.stem(words[i])
-        s = set(index[word_stemmed])
-        sets = sets.intersection(s)
+    words = []
+    def parse(exp):
+        print(exp)
+        sets = ()
+        tokenized = SExprTokenizer().tokenize(exp)
+        for token in tokenized:
+            if '(' in token:
+                words.append("(")
+                s = parse(token[1:-1])
+                words.append(")")
+            else:
+                word = token.split(" ")
+                for w in word:
+                    words.append(w)   
+            print('token:', token)
+        print(words)
 
-    print([data[doc_id] for doc_id in sets])
+                
+        
+    sets = set()
+    #query = '(a b (c d)) e f (g)'
+    parse(query)
+    print(sets)
+    # print([data[doc_id] for doc_id in sets])
 
-    return [data[doc_id] for doc_id in sets]
+    # return [data[doc_id] for doc_id in sets]
 
 def main():
     parser = ArgumentParser()
