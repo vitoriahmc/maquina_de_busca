@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# maquina_de_busca
-Maquina de busca.
-=======
 # Projeto Máquina de busca
 
 Neste projeto estamos desenvolvendo uma máquina de busca com as seguintes
@@ -18,4 +14,3 @@ Fase 2: Construção de uma ferramenta para busca com queries booleanas (AND, OR
 Fase 3: Ranking
 
 Fase 4: Aperfeiçoamentos e melhoramento do ranking
->>>>>>> upstream/master
