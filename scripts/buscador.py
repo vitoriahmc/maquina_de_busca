@@ -8,6 +8,10 @@ import search_engine.repository as se
 def distance_match(word, vocab):
     m = 10e5
     w = ''
+    ps = PorterStemmer()
+    word = ps.stem(word)
+    if word in vocab:
+        return word
     for word2 in vocab:
         dist = edit_distance(word, word2) 
         if dist == 0:
@@ -16,19 +20,25 @@ def distance_match(word, vocab):
         if dist < m:
             m = dist
             w = word2
-    return f"Você quis dizer {w} ?"
+            
+    print(f"Você quis dizer {w} ?")
+    print(f"Exibindo sugestões para {w}")
+    print("---------------------------------------------")
+    return w
 
     
-def busca_and(index, query):
+def busca_and(index, query, vocab):
     query_terms = query.strip().split()
     if len(query_terms) == 0:
         return {}
 
     initial_term = query_terms[0]
+    initial_term = distance_match(initial_term, vocab)
     docids = set(index[initial_term]) if initial_term in index else set()
     words = []
     ps = PorterStemmer()
     for word in query_terms[1:]:
+        word = distance_match(word, vocab)
         word = ps.stem(word)
         result = set(index[word]) if word in index else set()
         words.append(word)
@@ -36,12 +46,12 @@ def busca_and(index, query):
 
     return docids, words
 
-def busca_docids(index, query):
+def busca_docids(index, query, vocab):
     result = [q.strip().strip('()') for q in sexpr_tokenize(query)]
 
     docids = set()
     for subquery in result:
-        res, words = busca_and(index, subquery)
+        res, words = busca_and(index, subquery, vocab)
         docids |= res
 
     return docids, words
@@ -49,7 +59,11 @@ def busca_docids(index, query):
 def busca(corpus, repo, index, query):
     # Parsing da query.
     # Recuperar os ids de documento que contem todos os termos da query.
-    docids, words = busca_docids(index, query)
+    vocab = []
+    for k, v in repo.items():
+        vocab += v
+    vocab = set(vocab)
+    docids, words = busca_docids(index, query, vocab)
     
     # Retornar os textos destes documentos.
     return docids, words
@@ -66,6 +80,7 @@ def ranking(ranking_doc, docids, words):
         ranked_docs.append([doc_id, total])
 
     ranked_docs = sorted(ranked_docs, key= lambda x: x[1])
+   # print(ranked_docs[0:10])
     return [doc_id for doc_id, _ in ranked_docs]
 
 def main():
@@ -95,7 +110,10 @@ def main():
     docids_ranqueados = ranking(ranking_doc, docids, words)
     docs = [corpus[docid] for docid in docids_ranqueados[:args.num_docs]]
 
-    print(docs)
+    print()
+    for doc in docs:
+        print("-" * 100)
+        print(doc)
 
     print(f'Numero de resultados: {len(docids)}')
 
